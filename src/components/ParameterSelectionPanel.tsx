@@ -35,15 +35,13 @@ const ParameterSelectionPanel: React.FC<ParameterSelectionPanelProps> = ({
   };
 
   const hadithBooks = [
-    { value: "sahih-bukhari", label: "Sahih al-Bukhari" },
-    { value: "sahih-muslim", label: "Sahih Muslim" },
-    { value: "al-tirmidhi", label: "Jami at-Tirmidhi" },
-    { value: "abu-dawood", label: "Sunan Abi Dawud" },
-    { value: "sunan-nasai", label: "Sunan an-Nasa'i" },
-    { value: "ibn-e-majah", label: "Sunan Ibn Majah" },
-    { value: "mishkat", label: "Mishkat Al-Masabih" },
-    { value: "musnad-ahmad", label: "Musnad Ahmad" },
-    { value: "al-silsila-sahiha", label: "Al-Silsila Sahiha" },
+    { value: "sahih-bukhari", label: "Sahih al-Bukhari (1-7563)" },
+    { value: "sahih-muslim", label: "Sahih Muslim (1-7563)" },
+    { value: "al-tirmidhi", label: "Jami at-Tirmidhi (1-3956)" },
+    { value: "abu-dawood", label: "Sunan Abu Dawood (1-5274)" },
+    { value: "ibn-e-majah", label: "Sunan Ibn-e-Majah (1-4341)" },
+    { value: "sunan-nasai", label: "Sunan an-Nasa'i (1-5761)" },
+    { value: "mishkat", label: "Mishkat Al-Masabih (1-6294)" },
   ];
 
   const languages = [
@@ -86,6 +84,21 @@ const ParameterSelectionPanel: React.FC<ParameterSelectionPanelProps> = ({
             id="number"
             type="number"
             min="1"
+            max={
+              book === "sahih-bukhari" || book === "sahih-muslim"
+                ? 7563
+                : book === "al-tirmidhi"
+                  ? 3956
+                  : book === "abu-dawood"
+                    ? 5274
+                    : book === "ibn-e-majah"
+                      ? 4341
+                      : book === "sunan-nasai"
+                        ? 5761
+                        : book === "mishkat"
+                          ? 6294
+                          : 9999
+            }
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             placeholder="Enter hadith number"

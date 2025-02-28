@@ -35,7 +35,7 @@ const HadithPoster = ({
     authenticity === "sahih" ? "border-green-500" : "border-red-500";
 
   return (
-    <div className="w-full h-full bg-white p-4">
+    <div className="w-full h-full bg-white p-4 hadith-poster-container">
       <Card
         className={`w-full h-full max-w-[600px] mx-auto relative overflow-hidden border-8 ${borderColorClass} bg-white shadow-lg p-8 flex flex-col`}
       >
