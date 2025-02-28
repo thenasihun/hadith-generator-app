@@ -131,19 +131,35 @@ const HadithGenerator: React.FC = () => {
       .then((data) => {
         console.log("API Response data:", data);
 
-        if (data && data.hadiths && data.hadiths.length > 0) {
-          const hadith = data.hadiths[0];
+        if (
+          data &&
+          data.hadiths &&
+          data.hadiths.data &&
+          data.hadiths.data.length > 0
+        ) {
+          const hadith = data.hadiths.data[0];
 
           // Process API data
           let hadithText = "";
+          let hadithTranslator = "";
+          let hadithNarrator = "";
+
           if (params.language === "english" && hadith.hadithEnglish) {
             hadithText = hadith.hadithEnglish;
+            hadithTranslator = hadith.book?.writerName || "Unknown";
+            hadithNarrator = hadith.englishNarrator || "";
           } else if (params.language === "arabic" && hadith.hadithArabic) {
             hadithText = hadith.hadithArabic;
+            hadithTranslator = hadith.book?.writerName || "Unknown";
           } else if (params.language === "urdu" && hadith.hadithUrdu) {
             hadithText = hadith.hadithUrdu;
+            hadithTranslator = hadith.book?.writerName || "Unknown";
+            hadithNarrator = hadith.urduNarrator || "";
           } else if (hadith.hadithEnglish) {
+            // Default to English if requested language not available
             hadithText = hadith.hadithEnglish;
+            hadithTranslator = hadith.book?.writerName || "Unknown";
+            hadithNarrator = hadith.englishNarrator || "";
           }
 
           // Remove any "Hadith #X from Book" prefix if present
@@ -152,14 +168,23 @@ const HadithGenerator: React.FC = () => {
             "",
           );
 
+          // If there's a narrator, prepend it to the hadith text if not already included
+          if (hadithNarrator && !hadithText.includes(hadithNarrator)) {
+            hadithText = `${hadithNarrator} ${hadithText}`;
+          }
+
           const newHadithData = {
             text: hadithText,
-            source: `${hadith.bookName} ${hadith.hadithNumber}`,
-            translator: hadith.narratedBy || "Unknown",
+            source: `${hadith.book?.bookName || "Unknown Book"} ${hadith.hadithNumber}`,
+            translator: hadithTranslator,
             authenticity:
               hadith.status?.toLowerCase() === "sahih" ? "sahih" : "zaeef",
             language: params.language,
-            title: hadith.chapterName || hadith.bookName || "Unknown Chapter",
+            title:
+              hadith.chapter?.chapterEnglish ||
+              hadith.chapter?.chapterUrdu ||
+              hadith.chapter?.chapterArabic ||
+              "Unknown Chapter",
           };
 
           setHadithData(newHadithData);
