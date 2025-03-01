@@ -478,6 +478,7 @@ const HadithGenerator: React.FC = () => {
         <div className="w-full lg:w-1/3">
           <ParameterSelectionPanel
             onFetchHadith={fetchHadith}
+            onSelectHadith={setHadithData}
             isLoading={isLoading}
           />
         </div>
