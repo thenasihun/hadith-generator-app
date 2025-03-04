@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Separator } from "./ui/separator";
 import ParameterSelectionPanel from "./ParameterSelectionPanel";
 import PosterPreviewPanel from "./PosterPreviewPanel";
+import html2canvas from "html2canvas";
 
 interface HadithData {
   text: string;
@@ -143,23 +144,29 @@ const HadithGenerator: React.FC = () => {
           let hadithText = "";
           let hadithTranslator = "";
           let hadithNarrator = "";
+          let hadithTitle = "";
 
           if (params.language === "english" && hadith.hadithEnglish) {
             hadithText = hadith.hadithEnglish;
             hadithTranslator = hadith.book?.writerName || "Unknown";
             hadithNarrator = hadith.englishNarrator || "";
+            hadithTitle = hadith.chapter?.chapterEnglish || "";
           } else if (params.language === "arabic" && hadith.hadithArabic) {
             hadithText = hadith.hadithArabic;
             hadithTranslator = hadith.book?.writerName || "Unknown";
+            hadithTitle = hadith.chapter?.chapterArabic || "";
           } else if (params.language === "urdu" && hadith.hadithUrdu) {
+            // For Urdu, keep narrator separate from hadith text
             hadithText = hadith.hadithUrdu;
             hadithTranslator = hadith.book?.writerName || "Unknown";
             hadithNarrator = hadith.urduNarrator || "";
+            hadithTitle = hadith.chapter?.chapterUrdu || "";
           } else if (hadith.hadithEnglish) {
             // Default to English if requested language not available
             hadithText = hadith.hadithEnglish;
             hadithTranslator = hadith.book?.writerName || "Unknown";
             hadithNarrator = hadith.englishNarrator || "";
+            hadithTitle = hadith.chapter?.chapterEnglish || "";
           }
 
           // Remove any "Hadith #X from Book" prefix if present
@@ -168,9 +175,26 @@ const HadithGenerator: React.FC = () => {
             "",
           );
 
-          // If there's a narrator, prepend it to the hadith text if not already included
-          if (hadithNarrator && !hadithText.includes(hadithNarrator)) {
+          // For English, if there's a narrator, prepend it to the hadith text if not already included
+          if (
+            params.language === "english" &&
+            hadithNarrator &&
+            !hadithText.includes(hadithNarrator)
+          ) {
             hadithText = `${hadithNarrator} ${hadithText}`;
+          }
+
+          // If no title is provided from API, use a default based on language
+          if (!hadithTitle) {
+            if (params.language === "english") {
+              hadithTitle = "Chapter of Hadith";
+            } else if (params.language === "arabic") {
+              hadithTitle = "كتاب الحديث";
+            } else if (params.language === "urdu") {
+              hadithTitle = "کتاب حدیث";
+            } else {
+              hadithTitle = "Chapter of Hadith";
+            }
           }
 
           const newHadithData = {
@@ -180,11 +204,9 @@ const HadithGenerator: React.FC = () => {
             authenticity:
               hadith.status?.toLowerCase() === "sahih" ? "sahih" : "zaeef",
             language: params.language,
-            title:
-              hadith.chapter?.chapterEnglish ||
-              hadith.chapter?.chapterUrdu ||
-              hadith.chapter?.chapterArabic ||
-              "Unknown Chapter",
+            title: hadithTitle,
+            urduNarrator: hadith.urduNarrator || "",
+            englishNarrator: hadith.englishNarrator || "",
           };
 
           setHadithData(newHadithData);
@@ -289,6 +311,16 @@ const HadithGenerator: React.FC = () => {
                   "The Prophet (ﷺ) said: 'Religion is sincerity.' We said, 'To whom?' He said, 'To Allah, His Book, His Messenger, the leaders of the Muslims, and their common folk.'";
                 hadithTranslator = "Abdul Hamid Siddiqui";
                 hadithTitle = "Book of Faith";
+              } else if (params.language === "arabic") {
+                hadithText =
+                  "قال النبي صلى الله عليه وسلم: 'الدين النصيحة'. قلنا: لمن؟ قال: 'لله ولكتابه ولرسوله ولأئمة المسلمين وعامتهم'";
+                hadithTranslator = "عبد الحميد صديقي";
+                hadithTitle = "كتاب الإيمان";
+              } else if (params.language === "urdu") {
+                hadithText =
+                  "آپ صلی اللہ علیہ وسلم نے فرمایا: 'دین نصیحت کا نام ہے۔' ہم نے پوچھا: کس کے لیے؟ آپ نے فرمایا: 'اللہ کے لیے، اس کی کتاب کے لیے، اس کے رسول کے لیے، مسلمانوں کے رہنماؤں کے لیے اور عام مسلمانوں کے لیے۔'";
+                hadithTranslator = "عبد الحميد صديقي";
+                hadithTitle = "کتاب الایمان";
               }
             }
           } else if (params.book === "al-tirmidhi") {
@@ -298,6 +330,16 @@ const HadithGenerator: React.FC = () => {
                   "Narrated Abu Hurairah: that the Messenger of Allah (ﷺ) said: 'Prayer in congregation is twenty-five degrees more virtuous than prayer performed individually.'";
                 hadithTranslator = "Abu Khaliyl";
                 hadithTitle = "Chapters on Salat";
+              } else if (params.language === "arabic") {
+                hadithText =
+                  "عن أبي هريرة أن رسول الله صلى الله عليه وسلم قال: 'صلاة الجماعة تفضل صلاة الفذ بخمس وعشرين درجة'";
+                hadithTranslator = "أبو خليل";
+                hadithTitle = "أبواب الصلاة";
+              } else if (params.language === "urdu") {
+                hadithText =
+                  "ابو ہریرہ رضی اللہ عنہ سے روایت ہے کہ رسول اللہ صلی اللہ علیہ وسلم نے فرمایا: 'جماعت کی نماز انفرادی نماز سے پچیس درجے افضل ہے۔'";
+                hadithTranslator = "ابو خلیل";
+                hadithTitle = "ابواب الصلاۃ";
               }
             } else {
               if (params.language === "english") {
@@ -305,6 +347,16 @@ const HadithGenerator: React.FC = () => {
                   "The Prophet (ﷺ) said: 'The most beloved of deeds to Allah are the most consistent ones, even if they are small.'";
                 hadithTranslator = "Abu Khaliyl";
                 hadithTitle = "Chapters on Virtues";
+              } else if (params.language === "arabic") {
+                hadithText =
+                  "قال النبي صلى الله عليه وسلم: 'أحب الأعمال إلى الله أدومها وإن قل'";
+                hadithTranslator = "أبو خليل";
+                hadithTitle = "أبواب الفضائل";
+              } else if (params.language === "urdu") {
+                hadithText =
+                  "آپ صلی اللہ علیہ وسلم نے فرمایا: 'اللہ کو سب سے زیادہ پسندیدہ عمل وہ ہے جو مستقل ہو، چاہے وہ تھوڑا ہی ہو۔'";
+                hadithTranslator = "ابو خلیل";
+                hadithTitle = "ابواب الفضائل";
               }
             }
           } else if (params.book === "abu-dawood") {
@@ -314,6 +366,16 @@ const HadithGenerator: React.FC = () => {
                   "Narrated Abdullah ibn Umar: The Prophet (ﷺ) said: The most excellent prayer in Allah's sight is the dawn prayer on Friday in congregation.";
                 hadithTranslator = "Ahmad Hasan";
                 hadithTitle = "Book of Purification";
+              } else if (params.language === "arabic") {
+                hadithText =
+                  "عن عبد الله بن عمر: أن النبي صلى الله عليه وسلم قال: أفضل الصلاة عند الله صلاة الفجر يوم الجمعة في جماعة";
+                hadithTranslator = "أحمد حسن";
+                hadithTitle = "كتاب الطهارة";
+              } else if (params.language === "urdu") {
+                hadithText =
+                  "عبداللہ بن عمر سے روایت ہے کہ نبی صلی اللہ علیہ وسلم نے فرمایا: اللہ کے نزدیک سب سے افضل نماز جمعہ کے دن فجر کی نماز باجماعت ہے۔";
+                hadithTranslator = "احمد حسن";
+                hadithTitle = "کتاب الطہارۃ";
               }
             } else {
               if (params.language === "english") {
@@ -321,6 +383,16 @@ const HadithGenerator: React.FC = () => {
                   "The Prophet (ﷺ) said: 'Whoever takes a path in search of knowledge, Allah will make easy for him the path to Paradise.'";
                 hadithTranslator = "Ahmad Hasan";
                 hadithTitle = "Book of Knowledge";
+              } else if (params.language === "arabic") {
+                hadithText =
+                  "قال النبي صلى الله عليه وسلم: 'من سلك طريقا يلتمس فيه علما سهل الله له به طريقا إلى الجنة'";
+                hadithTranslator = "أحمد حسن";
+                hadithTitle = "كتاب العلم";
+              } else if (params.language === "urdu") {
+                hadithText =
+                  "آپ صلی اللہ علیہ وسلم نے فرمایا: 'جو شخص علم کی تلاش میں کوئی راستہ اختیار کرتا ہے، اللہ اس کے لیے جنت کا راستہ آسان کر دیتا ہے۔'";
+                hadithTranslator = "احمد حسن";
+                hadithTitle = "کتاب العلم";
               }
             }
           } else if (params.book === "ibn-e-majah") {
@@ -329,6 +401,16 @@ const HadithGenerator: React.FC = () => {
                 "The Prophet (ﷺ) said: 'The best of you are those who are best to their families, and I am the best of you to my family.'";
               hadithTranslator = "Nasiruddin al-Khattab";
               hadithTitle = "Book of Marriage";
+            } else if (params.language === "arabic") {
+              hadithText =
+                "قال النبي صلى الله عليه وسلم: 'خيركم خيركم لأهله وأنا خيركم لأهلي'";
+              hadithTranslator = "ناصر الدين الخطاب";
+              hadithTitle = "كتاب النكاح";
+            } else if (params.language === "urdu") {
+              hadithText =
+                "آپ صلی اللہ علیہ وسلم نے فرمایا: 'تم میں سے بہترین وہ ہے جو اپنے گھر والوں کے ساتھ بہترین ہے، اور میں تم میں سے اپنے گھر والوں کے ساتھ بہترین ہوں۔'";
+              hadithTranslator = "ناصر الدین الخطاب";
+              hadithTitle = "کتاب النکاح";
             }
           } else if (params.book === "sunan-nasai") {
             if (params.language === "english") {
@@ -336,6 +418,16 @@ const HadithGenerator: React.FC = () => {
                 "The Prophet (ﷺ) said: 'The example of a good companion and a bad companion is like that of the seller of musk and the one who blows the bellows.'";
               hadithTranslator = "Nasiruddin al-Khattab";
               hadithTitle = "Book of Companionship";
+            } else if (params.language === "arabic") {
+              hadithText =
+                "قال النبي صلى الله عليه وسلم: 'مثل الجليس الصالح والجليس السوء كمثل صاحب المسك ونافخ الكير'";
+              hadithTranslator = "ناصر الدين الخطاب";
+              hadithTitle = "كتاب الصحبة";
+            } else if (params.language === "urdu") {
+              hadithText =
+                "آپ صلی اللہ علیہ وسلم نے فرمایا: 'اچھے ساتھی اور برے ساتھی کی مثال مشک بیچنے والے اور دھونکنی چلانے والے کی طرح ہے۔'";
+              hadithTranslator = "ناصر الدین الخطاب";
+              hadithTitle = "کتاب الصحبۃ";
             }
           } else if (params.book === "mishkat") {
             if (params.language === "english") {
@@ -343,6 +435,16 @@ const HadithGenerator: React.FC = () => {
                 "The Prophet (ﷺ) said: 'Verily, Allah does not look at your appearance or wealth, but rather He looks at your hearts and actions.'";
               hadithTranslator = "James Robson";
               hadithTitle = "Book of Heart Softeners";
+            } else if (params.language === "arabic") {
+              hadithText =
+                "قال النبي صلى الله عليه وسلم: 'إن الله لا ينظر إلى صوركم وأموالكم ولكن ينظر إلى قلوبكم وأعمالكم'";
+              hadithTranslator = "جيمس روبسون";
+              hadithTitle = "كتاب الرقائق";
+            } else if (params.language === "urdu") {
+              hadithText =
+                "آپ صلی اللہ علیہ وسلم نے فرمایا: 'بیشک اللہ تمہاری شکلوں اور مالوں کو نہیں دیکھتا بلکہ وہ تمہارے دلوں اور اعمال کو دیکھتا ہے۔'";
+              hadithTranslator = "جیمز روبسن";
+              hadithTitle = "کتاب الرقائق";
             }
           }
 
@@ -382,30 +484,63 @@ const HadithGenerator: React.FC = () => {
       return;
     }
 
+    // Get only the poster content, not the container
+    const posterCard = posterElement.querySelector(".poster-card");
+
     // Create a filename based on the hadith source
     const filename =
       hadithData.source.replace(/\s+/g, "-").toLowerCase() + ".png";
 
+    // Show loading indicator
+    const loadingIndicator = document.createElement("div");
+    loadingIndicator.className =
+      "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
+    loadingIndicator.innerHTML = `<div class="bg-white p-4 rounded-lg shadow-lg text-center"><div class="animate-spin inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full mb-2"></div><p>Generating image...</p></div>`;
+    document.body.appendChild(loadingIndicator);
+
     // Use html2canvas to capture the poster as an image
-    import("html2canvas")
-      .then((html2canvas) => {
-        html2canvas
-          .default(posterElement as HTMLElement)
-          .then((canvas) => {
-            // Create a download link
-            const link = document.createElement("a");
-            link.download = filename;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-          })
-          .catch((err) => {
-            console.error("Error generating canvas:", err);
-            alert("Failed to generate image. Please try again.");
-          });
+    html2canvas((posterCard as HTMLElement) || (posterElement as HTMLElement), {
+      scale: 2, // Higher quality
+      useCORS: true, // Allow cross-origin images
+      allowTaint: true,
+      backgroundColor: null,
+      onclone: (clonedDoc) => {
+        // Find the poster card in the cloned document
+        const clonedCard = clonedDoc.querySelector(".poster-card");
+        if (clonedCard) {
+          // Set fixed dimensions for the download version
+          const style = clonedCard.getAttribute("style") || "";
+          // Override height to ensure all content is captured
+          clonedCard.setAttribute(
+            "style",
+            `${style}; height: auto !important; max-height: none !important; overflow: visible !important;`,
+          );
+
+          // Ensure content is centered between title and watermark
+          const contentDiv = clonedCard.querySelector(".flex-grow");
+          if (contentDiv) {
+            contentDiv.setAttribute(
+              "style",
+              "display: flex; flex-direction: column; justify-content: center; min-height: 70%;",
+            );
+          }
+        }
+      },
+    })
+      .then((canvas) => {
+        // Create a download link
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        // Remove loading indicator
+        document.body.removeChild(loadingIndicator);
       })
       .catch((err) => {
-        console.error("Error loading html2canvas:", err);
-        alert("Failed to load image generator. Please try again.");
+        console.error("Error generating canvas:", err);
+        alert("Failed to generate image. Please try again.");
+        // Remove loading indicator
+        document.body.removeChild(loadingIndicator);
       });
   };
 

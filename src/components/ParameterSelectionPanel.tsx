@@ -66,14 +66,10 @@ const ParameterSelectionPanel: React.FC<ParameterSelectionPanelProps> = ({
       <h2 className="text-2xl font-bold mb-6">Hadith Parameters</h2>
 
       <Tabs defaultValue="number" className="w-full mb-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-1">
           <TabsTrigger value="number" className="flex items-center">
             <Hash size={16} className="mr-2" />
             By Number
-          </TabsTrigger>
-          <TabsTrigger value="search" className="flex items-center">
-            <Search size={16} className="mr-2" />
-            By Search
           </TabsTrigger>
         </TabsList>
 

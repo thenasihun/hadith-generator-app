@@ -9,6 +9,57 @@
       name="description"
       content="Create beautiful, customizable Hadith posters with authentic Islamic traditions"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @font-face {
+        font-family: "Jameel Noori Nastaleeq";
+        src: url("https://api.tempolabs.ai/proxy-asset?url=https://storage.googleapis.com/tempo-public-assets/jameel-noori-nastaleeq.ttf")
+          format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      @keyframes fadeInOut {
+        0% {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        10% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        90% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .animate-fade-in-out {
+        animation: fadeInOut 3.5s ease-in-out;
+      }
+
+      .animate-fade-out {
+        animation: fadeOut 0.5s ease-out forwards;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
